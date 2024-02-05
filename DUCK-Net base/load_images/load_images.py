@@ -1,59 +1,65 @@
 import glob
+
 import numpy as np
+from PIL import Image
 from skimage.io import imread
-from skimage.transform import resize
 from tqdm import tqdm
 
 folder_path = "/kaggle/input/cvc-clinic-png/"  # Add the path to your data directory
 
-def read_and_resize_image(image_path, img_height, img_width):
-    # Đọc và resize ảnh
-    image = imread(image_path)
-    image = resize(image, (img_height, img_width), anti_aliasing=True)
-    return image
-
-def read_and_process_mask(mask_path, img_height, img_width):
-    # Đọc và resize mask
-    mask = imread(mask_path)
-    mask = resize(mask, (img_height, img_width), anti_aliasing=False, order=0)
-    # Xử lý mask để chuyển thành binary mask
-    binary_mask = mask >= 127
-    return binary_mask
-
-def get_train_ids(dataset, IMAGES_PATH):
-    # Lấy danh sách các ID ảnh tùy theo dataset
-    if dataset in ['kvasir', 'cvc-clinicdb', 'cvc-colondb', 'etis-laribpolypdb']:
-        extension = "*.jpg" if dataset == 'kvasir' else "*.png"
-        train_ids = glob.glob(IMAGES_PATH + extension)
-    else:
-        raise ValueError(f"Dataset {dataset} is not supported.")
-    return train_ids
 
 def load_data(img_height, img_width, images_to_be_loaded, dataset):
     IMAGES_PATH = folder_path + 'Original/'
     MASKS_PATH = folder_path + 'Ground Truth/'
 
-    train_ids = get_train_ids(dataset, IMAGES_PATH)
+    if dataset == 'kvasir':
+        train_ids = glob.glob(IMAGES_PATH + "*.jpg")
+
+    if dataset == 'cvc-clinicdb':
+        train_ids = glob.glob(IMAGES_PATH + "*.png")
+        #train_ids = train_ids[:30]
+
+    if dataset == 'cvc-colondb' or dataset == 'etis-laribpolypdb':
+        train_ids = glob.glob(IMAGES_PATH + "*.png")
 
     if images_to_be_loaded == -1:
         images_to_be_loaded = len(train_ids)
-        print(f"Number of images to be loaded: {images_to_be_loaded}")
+        print(images_to_be_loaded)
 
     X_train = np.zeros((images_to_be_loaded, img_height, img_width, 3), dtype=np.float32)
-    Y_train = np.zeros((images_to_be_loaded, img_height, img_width, 1), dtype=np.bool_)
+    Y_train = np.zeros((images_to_be_loaded, img_height, img_width), dtype=np.uint8)
 
-    print(f'Resizing training images and masks: {images_to_be_loaded}')
-    for n, id_ in tqdm(enumerate(train_ids), total=images_to_be_loaded):
+    print('Resizing training images and masks: ' + str(images_to_be_loaded))
+    for n, id_ in tqdm(enumerate(train_ids)):
         if n == images_to_be_loaded:
             break
 
-        # Xử lý ảnh và mask
-        image = read_and_resize_image(id_, img_height, img_width)
-        mask_path = id_.replace("Original", "Ground Truth").replace(".jpg", ".png").replace(".png", ".png")
-        mask = read_and_process_mask(mask_path, img_height, img_width)
+        image_path = id_
+        mask_path = image_path.replace("images", "masks")
 
-        # Normalize ảnh và thêm vào X_train
-        X_train[n] = image / 255.0
-        Y_train[n, ..., 0] = mask
+        image = imread(image_path)
+        mask_ = imread(mask_path)
+
+        mask = np.zeros((img_height, img_width), dtype=np.bool_)
+
+        pillow_image = Image.fromarray(image)
+
+        pillow_image = pillow_image.resize((img_height, img_width))
+        image = np.array(pillow_image)
+
+        X_train[n] = image / 255
+
+        pillow_mask = Image.fromarray(mask_)
+        pillow_mask = pillow_mask.resize((img_height, img_width), resample=Image.LANCZOS)
+        mask_ = np.array(pillow_mask)
+
+        for i in range(img_height):
+            for j in range(img_width):
+                if (mask_[i, j] >= 127).all():
+                    mask[i, j] = 1
+
+        Y_train[n] = mask
+
+    Y_train = np.expand_dims(Y_train, axis=-1)
 
     return X_train, Y_train
