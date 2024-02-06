@@ -1,5 +1,7 @@
 # Defining the augmentations
 import albumentations as albu
+import numpy as np
+
 aug_train = albu.Compose([
     albu.HorizontalFlip(),
     albu.VerticalFlip(),
