@@ -93,7 +93,9 @@ def load_data(img_height, img_width, images_to_be_loaded, dataset):
         mask_resized = resize(mask_, (img_height, img_width), order=0, preserve_range=True) >= 127
         
         X_train[n] = image_resized
-        Y_train[n] = np.expand_dims(mask_resized, axis=-1)
+        Y_train[n] = mask_resized
+        
+    Y_train = np.expand_dims(Y_train, axis=-1)    
 
     return X_train, Y_train
 
