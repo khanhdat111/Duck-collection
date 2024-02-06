@@ -7,7 +7,7 @@ aug_train = albu.Compose([
     albu.Affine(scale=(0.5,1.5), translate_percent=(-0.125,0.125), rotate=(-180,180), shear=(-22.5,22), always_apply=True),
 ])
 
-def augment_images():
+def augment_images(x_train,y_train):
     x_train_out = []
     y_train_out = []
 
