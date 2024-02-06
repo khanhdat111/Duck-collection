@@ -5,6 +5,7 @@ from PIL import Image
 from skimage.io import imread
 from tqdm import tqdm
 from skimage.transform import resize
+from skimage.color import rgb2gray 
 
 folder_path = "/kaggle/input/cvc-clinic-png/"  # Add the path to your data directory
 
@@ -87,15 +88,15 @@ def load_data(img_height, img_width, images_to_be_loaded, dataset):
         image = imread(id_) / 255.0
         mask_path = id_.replace("Original", "Ground Truth").replace(".jpg", ".png").replace(".png", ".png")
         mask_ = imread(mask_path)
+        if mask_.ndim == 3:
+            mask_ = rgb2gray(mask_)
 
         # Resize image và mask
         image_resized = resize(image, (img_height, img_width), anti_aliasing=True)
-        mask_resized = resize(mask_, (img_height, img_width), order=0, preserve_range=True) >= 127
+        mask_resized = resize(mask_, (img_height, img_width), order=0, preserve_range=True) >= 0.5 
         
         X_train[n] = image_resized
-        Y_train[n] = mask_resized
+        Y_train[n] = np.expand_dims(mask_resized, axis=-1)
         
-    Y_train = np.expand_dims(Y_train, axis=-1)    
-
     return X_train, Y_train
 
