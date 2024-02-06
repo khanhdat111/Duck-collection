@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras.layers import Conv2D, UpSampling2D
 from keras.layers import add
 from keras.models import Model
-from Layers.conv_block2d import conv_block2d
+from Layers.conv_block2d import conv_block_2D
 
 kernel_initializer = 'he_uniform'
 interpolation = "nearest"
