@@ -79,7 +79,7 @@ def load_data(img_height, img_width, images_to_be_loaded, dataset):
     print(f'Resizing training images and masks: {images_to_be_loaded}')
 
     X_train = np.zeros((images_to_be_loaded, img_height, img_width, 3), dtype=np.float32)
-    Y_train = np.zeros((images_to_be_loaded, img_height, img_width, 1), dtype=np.bool_)
+    Y_train = np.zeros((images_to_be_loaded, img_height, img_width, 1), dtype=np.uint8) 
 
     for n, id_ in tqdm(enumerate(train_ids), total=images_to_be_loaded):
         if n >= images_to_be_loaded:
@@ -91,12 +91,12 @@ def load_data(img_height, img_width, images_to_be_loaded, dataset):
         if mask_.ndim == 3:
             mask_ = rgb2gray(mask_)
 
-        # Resize image và mask
         image_resized = resize(image, (img_height, img_width), anti_aliasing=True)
-        mask_resized = resize(mask_, (img_height, img_width), order=0, preserve_range=True) >= 0.5 
-        
+        mask_resized = resize(mask_, (img_height, img_width), order=0, preserve_range=True)
+
+        mask_resized = (mask_resized >= 0.5).astype(np.uint8) * 255
+
         X_train[n] = image_resized
         Y_train[n] = np.expand_dims(mask_resized, axis=-1)
         
     return X_train, Y_train
-
