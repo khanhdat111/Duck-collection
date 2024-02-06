@@ -17,7 +17,7 @@ aug_train = albu.Compose([
     albu.GaussNoise(var_limit=(10.0, 50.0), p=0.5),
     albu.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.5),
     albu.RandomGamma(gamma_limit=(80, 120), p=0.9),
-    albu.CLAHE(clip_limit=2.0, tile_grid_size=(8, 8), p=0.5),
+    #albu.CLAHE(clip_limit=2.0, tile_grid_size=(8, 8), p=0.5),
     albu.Affine(scale=(0.8,1.2), translate_percent=(-0.2,0.2), rotate=(-180,180), shear=(-8,8), p=0.9),
     albu.CoarseDropout(max_holes=8, max_height=8, max_width=8, min_holes=1, fill_value=0, p=0.5),
     albu.RandomSizedCrop(min_max_height=(256, 256), height=512, width=512, p=0.5)
