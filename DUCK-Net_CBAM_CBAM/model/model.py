@@ -1,7 +1,7 @@
 from tensorflow.keras.layers import Conv2D, UpSampling2D
 from keras.models import Model
 from Layers.conv_block2d import conv_block_2D
-from Layers.cbam import cbam
+from Layers.cbam import cbam_block
 
 kernel_initializer = 'he_uniform'
 interpolation = "nearest"
@@ -57,21 +57,25 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
     l5o = UpSampling2D((2, 2), interpolation=interpolation)(t53)
     c4 = add([l5o, l4icb])
     q4 = conv_block_2D(c4, starting_filters * 8, 'duckv2', repeat=1)
+    q4 = cbam_block(q4)
     
 
     l4o = UpSampling2D((2, 2), interpolation=interpolation)(q4)
     c3 = add([l4o, l3icb])
     q3 = conv_block_2D(c3, starting_filters * 4, 'duckv2', repeat=1)
+    q3 = cbam_block(q3)
 
 
     l3o = UpSampling2D((2, 2), interpolation=interpolation)(q3)
     c2 = add([l3o, l2icb])
     q6 = conv_block_2D(c2, starting_filters * 2, 'duckv2', repeat=1)
+    q6 = cbam_block(q6)
     #print(q6.shape)
     
     l2o = UpSampling2D((2, 2), interpolation=interpolation)(q6)
     c1 = add([l2o, l1icb])
     q1 = conv_block_2D(c1, starting_filters, 'duckv2', repeat=1)
+    q1 = cbam_block(q1)
     #print(q1.shape)
 
     l1o = UpSampling2D((2, 2), interpolation=interpolation)(q1)
