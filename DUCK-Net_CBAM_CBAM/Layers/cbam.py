@@ -3,7 +3,7 @@ from tensorflow.keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D, 
 from tensorflow.keras import backend as K
 from tensorflow.keras.activations import sigmoid
 
-def cbam_block(cbam_feature, ratio=8):
+def cbam(cbam_feature, ratio=8):
     cbam_feature = channel_attention(cbam_feature, ratio)
     cbam_feature = spatial_attention(cbam_feature)
     return cbam_feature
