@@ -72,7 +72,7 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
     #print(q1.shape)
 
     l1o = UpSampling2D((2, 2), interpolation=interpolation)(q1)
-    c0 = add([l1o, t0cb])
+    c0 = add([l1o, t0])
     z1 = conv_block_2D(c0, starting_filters, 'duckv2', repeat=1)
     #print(z1.shape)
 
