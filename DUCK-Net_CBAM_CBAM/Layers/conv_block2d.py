@@ -5,7 +5,7 @@ from keras.layers import Conv2D
 kernel_initializer = 'he_uniform'
 
 
-def conv_block_2D(x, filters, block_type, repeat=1, dilation_rate=1, size=3, padding='same'):
+def conv_block_2D(x, filters, block_type, repeat=1, size=3, padding='same'):
     result = x
 
     for i in range(0, repeat):
@@ -16,7 +16,7 @@ def conv_block_2D(x, filters, block_type, repeat=1, dilation_rate=1, size=3, pad
             result = Conv2D(filters, (size, size),
                             activation='relu', kernel_initializer=kernel_initializer, padding=padding)(result)
         elif block_type == 'double_convolution':
-            result = double_convolution_with_batch_normalization(result, filters, dilation_rate)
+            result = double_convolution_with_batch_normalization(result, filters)
 
         else:
             return None
