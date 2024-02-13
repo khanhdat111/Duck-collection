@@ -26,7 +26,7 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
     p5 = Conv2D(starting_filters * 32, 2, strides=2, padding='same')(p4)
     p5cb = cbam_block(p5)
 
-    t0 = Conv2D(starting_filters , (3,3) , padding='same' )
+    t0 = conv_block_2D(input_layer, starting_filters , '', repeat=1)
     t0cb = cbam_block(t0)
 
     l1i = Conv2D(starting_filters * 2, 2, strides=2, padding='same')(t0cb)
