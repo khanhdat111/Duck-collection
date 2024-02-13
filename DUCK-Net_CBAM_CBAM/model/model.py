@@ -1,4 +1,4 @@
-from keras.layers import Conv2D, UpSampling2D
+from keras.layers import Conv2D, UpSampling2D , Conv2DTranspose
 from keras.models import Model
 from keras.layers import add
 from Layers.conv_block2d import conv_block_2D
@@ -53,34 +53,54 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
     s5 = add([l5i, p5cb])
     t51 = conv_block_2D(s5, starting_filters * 32, 'resnet', repeat=2)
     t53 = conv_block_2D(t51, starting_filters * 16, 'resnet', repeat=2)
+
+    #----------------------------------------------------------------------------------#
+
+    t53 = cbam_block(t53)
+    t53cb = Conv2DTranspose( starting_filters * 8, 2, strides=2, padding='same')(t53)
+    
+    t54 = cbam_block(t53cb)
+    t54cb = Conv2DTranspose( starting_filters * 4, 2, strides=2, padding='same')(t54)
+    
+    t55 = cbam_block(t54cb)
+    t55cb =Conv2DTranspose( starting_filters * 2, 2, strides=2, padding='same')(t55)
+
+    t56 = cbam_block(t55cb)
+    t56cb =  Conv2DTranspose( starting_filters , 2, strides=2, padding='same')(t56)
     
     #----------------------------------------------------------------------------------#
 
     l5o = UpSampling2D((2, 2), interpolation=interpolation)(t53)
     c4 = add([l5o, l4icb])
     q4 = conv_block_2D(c4, starting_filters * 8, 'double_convolution', repeat=1)
-    q4 = cbam_block(q4)
     
-
-    l4o = UpSampling2D((2, 2), interpolation=interpolation)(q4)
+    q4 = cbam_block(q4)
+    v4 = add([q4,t53cb])
+    
+    l4o = UpSampling2D((2, 2), interpolation=interpolation)(v4)
     c3 = add([l4o, l3icb])
     q3 = conv_block_2D(c3, starting_filters * 4, 'double_convolution', repeat=1)
+
     q3 = cbam_block(q3)
+    v3 = add([q3, t54cb])
 
-
-    l3o = UpSampling2D((2, 2), interpolation=interpolation)(q3)
+    l3o = UpSampling2D((2, 2), interpolation=interpolation)(v3)
     c2 = add([l3o, l2icb])
     q6 = conv_block_2D(c2, starting_filters * 2, 'double_convolution', repeat=1)
-    q6 = cbam_block(q6)
     #print(q6.shape)
     
-    l2o = UpSampling2D((2, 2), interpolation=interpolation)(q6)
+    q6 = cbam_block(q6)
+    v3 = add([q6,t55cb])
+    
+    l2o = UpSampling2D((2, 2), interpolation=interpolation)(v3)
     c1 = add([l2o, l1icb])
     q1 = conv_block_2D(c1, starting_filters, 'double_convolution', repeat=1)
-    q1 = cbam_block(q1)
     #print(q1.shape)
 
-    l1o = UpSampling2D((2, 2), interpolation=interpolation)(q1)
+    q1 = cbam_block(q1)
+    v2 = add([q1 ,t56cb])
+
+    l1o = UpSampling2D((2, 2), interpolation=interpolation)(v2)
     c0 = add([l1o, t0cb])
     z1 = conv_block_2D(c0, starting_filters, 'double_convolution', repeat=1)
     #print(z1.shape)
