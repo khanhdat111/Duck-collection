@@ -26,28 +26,28 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
     p5 = Conv2D(starting_filters * 32, 2, strides=2, padding='same')(p4)
     p5cb = cbam_block(p5)
 
-    t0 = conv_block_2D(input_layer, starting_filters , '', repeat=1)
+    t0 = conv_block_2D(input_layer, starting_filters , 'double_convolution', repeat=1)
     t0cb = cbam_block(t0)
 
     l1i = Conv2D(starting_filters * 2, 2, strides=2, padding='same')(t0cb)
     l1icb = cbam_block(l1i)
     s1 = add([l1icb, p1cb])
-    t1 = conv_block_2D(s1, starting_filters * 2, 'duckv2', repeat=1)
+    t1 = conv_block_2D(s1, starting_filters * 2, 'double_convolution', repeat=1)
 
     l2i = Conv2D(starting_filters * 4, 2, strides=2, padding='same')(t1)
     l2icb = cbam_block(l2i)
     s2 = add([l2icb, p2cb])
-    t2 = conv_block_2D(s2, starting_filters * 4, 'duckv2', repeat=1)
+    t2 = conv_block_2D(s2, starting_filters * 4, 'double_convolution', repeat=1)
 
     l3i = Conv2D(starting_filters * 8, 2, strides=2, padding='same')(t2)
     l3icb = cbam_block(l3i)
     s3 = add([l3icb, p3cb])
-    t3 = conv_block_2D(s3, starting_filters * 8, 'duckv2', repeat=1)
+    t3 = conv_block_2D(s3, starting_filters * 8, 'double_convolution', repeat=1)
 
     l4i = Conv2D(starting_filters * 16, 2, strides=2, padding='same')(t3)
     l4icb = cbam_block(l4i)
     s4 = add([l4icb, p4cb])
-    t4 = conv_block_2D(s4, starting_filters * 16, 'duckv2', repeat=1)
+    t4 = conv_block_2D(s4, starting_filters * 16, 'double_convolution', repeat=1)
 
     l5i = Conv2D(starting_filters * 32, 2, strides=2, padding='same')(t4)
     s5 = add([l5i, p5cb])
@@ -58,31 +58,31 @@ def create_model(img_height, img_width, input_chanels, out_classes, starting_fil
 
     l5o = UpSampling2D((2, 2), interpolation=interpolation)(t53)
     c4 = add([l5o, l4icb])
-    q4 = conv_block_2D(c4, starting_filters * 8, 'duckv2', repeat=1)
+    q4 = conv_block_2D(c4, starting_filters * 8, 'double_convolution', repeat=1)
     q4 = cbam_block(q4)
     
 
     l4o = UpSampling2D((2, 2), interpolation=interpolation)(q4)
     c3 = add([l4o, l3icb])
-    q3 = conv_block_2D(c3, starting_filters * 4, 'duckv2', repeat=1)
+    q3 = conv_block_2D(c3, starting_filters * 4, 'double_convolution', repeat=1)
     q3 = cbam_block(q3)
 
 
     l3o = UpSampling2D((2, 2), interpolation=interpolation)(q3)
     c2 = add([l3o, l2icb])
-    q6 = conv_block_2D(c2, starting_filters * 2, 'duckv2', repeat=1)
+    q6 = conv_block_2D(c2, starting_filters * 2, 'double_convolution', repeat=1)
     q6 = cbam_block(q6)
     #print(q6.shape)
     
     l2o = UpSampling2D((2, 2), interpolation=interpolation)(q6)
     c1 = add([l2o, l1icb])
-    q1 = conv_block_2D(c1, starting_filters, 'duckv2', repeat=1)
+    q1 = conv_block_2D(c1, starting_filters, 'double_convolution', repeat=1)
     q1 = cbam_block(q1)
     #print(q1.shape)
 
     l1o = UpSampling2D((2, 2), interpolation=interpolation)(q1)
     c0 = add([l1o, t0cb])
-    z1 = conv_block_2D(c0, starting_filters, 'duckv2', repeat=1)
+    z1 = conv_block_2D(c0, starting_filters, 'double_convolution', repeat=1)
     #print(z1.shape)
 
     output = Conv2D(out_classes, (1, 1), activation='sigmoid')(z1)
